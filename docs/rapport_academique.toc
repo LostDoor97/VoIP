@@ -1,0 +1,28 @@
+\babel@toc {french}{}\relax 
+\contentsline {section}{\numberline {1}Introduction}{3}{section.1}%
+\contentsline {section}{\numberline {2}Historique : Internet et WebRTC}{4}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Évolution d'Internet}{4}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}De la VoIP classique aux architectures temps réel modernes}{4}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Historique de WebRTC}{5}{subsection.2.3}%
+\contentsline {section}{\numberline {3}Explication des protocoles SIP et RTP}{5}{section.3}%
+\contentsline {subsection}{\numberline {3.1}SIP : signalisation des sessions}{5}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Structure des messages SIP et champs critiques}{6}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Cycle d'appel SIP dans le projet}{6}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}RTP : transport des flux audio}{7}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Qualité de service et limites pratiques}{7}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}Rôle de SDP}{7}{subsection.3.6}%
+\contentsline {subsection}{\numberline {3.7}Extraits de code d'implémentation des protocoles}{8}{subsection.3.7}%
+\contentsline {subsubsection}{\numberline {3.7.1}Implémentation SIP (construction et sérialisation des messages)}{8}{subsubsection.3.7.1}%
+\contentsline {subsubsection}{\numberline {3.7.2}Implémentation SDP (offre/réponse et parsing)}{8}{subsubsection.3.7.2}%
+\contentsline {subsubsection}{\numberline {3.7.3}Implémentation RTP (encapsulation et émission des paquets)}{10}{subsubsection.3.7.3}%
+\contentsline {subsubsection}{\numberline {3.7.4}Implémentation STUN (découverte d'endpoint public UDP)}{11}{subsubsection.3.7.4}%
+\contentsline {subsubsection}{\numberline {3.7.5}Gestion d'état d'appel SIP (CANCEL vs BYE)}{11}{subsubsection.3.7.5}%
+\contentsline {section}{\numberline {4}Diagrammes d'architecture}{12}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Architecture client-serveur}{12}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Flux d'un appel et médias RTP}{13}{subsection.4.2}%
+\contentsline {section}{\numberline {5}Capture d'écran de l'application fonctionnelle}{13}{section.5}%
+\contentsline {section}{\numberline {6}Tests de connectivité et résultats}{13}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Méthodologie de test}{13}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Résultats obtenus}{14}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Analyse}{14}{subsection.6.3}%
+\contentsline {section}{\numberline {7}Conclusion}{14}{section.7}%

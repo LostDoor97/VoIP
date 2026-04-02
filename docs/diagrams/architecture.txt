@@ -1,0 +1,264 @@
+=================================================================
+DIAGRAMME D'ARCHITECTURE - PROJET VoIP
+=================================================================
+
+1. ARCHITECTURE GLOBALE
+-----------------------
+
+                    ┌─────────────────────────────────────────┐
+                    │              INTERNET                   │
+                    │                                         │
+    ┌─────────────┐ │         ┌─────────────┐         ┌─────────────┐
+    │  Client A   │◄┼────────►│   Serveur   │◄┼────────►│  Client B  │
+    │  (SIP UA)   │ │   SIP   │  SIP/Proxy  │ │   SIP   │  (SIP UA)  │
+    │ 192.168.1.x │ │         │  0.0.0.0    │ │         │ 192.168.1.y│
+    └──────┬──────┘ │         │  Port 5060  │ │         └──────┬─────┘
+           │        │         └─────────────┘ │                │
+           │        │                         │                │
+           │        │                         │                │
+           └────────┴───────── RTP ───────────┴────────────────┘
+                    │    Port 10000-20000
+                    │    (Flux Audio Direct - P2P)
+                    └─────────────────────────────────────────┘
+
+
+2. FLUX D'UN APPEL SIP
+----------------------
+
+Client A (1001)              Serveur SIP              Client B (1002)
+     │                           │                          │
+     │────── REGISTER ──────────►│                          │
+     │◄────── 200 OK ───────────│                          │
+     │                           │                          │
+     │                           │────── REGISTER ─────────►│
+     │                           │◄───── 200 OK ────────────│
+     │                           │                          │
+     │────── INVITE ────────────►│                          │
+     │◄───── 100 Trying ────────│                          │
+     │                           │────── INVITE ───────────►│
+     │                           │◄──── 180 Ringing ────────│
+     │◄──── 180 Ringing ────────│                          │
+     │                           │                          │
+     │                           │◄────── 200 OK ───────────│
+     │◄────── 200 OK ───────────│                          │
+     │────── ACK ──────────────►│                          │
+     │                           │────── ACK ──────────────►│
+     │                           │                          │
+     │◄════════════════════════════════════════════════════►│
+     │                    FLUX RTP AUDIO                    │
+     │                   (Communication bidirectionnelle)    │
+     │                           │                          │
+     │────── BYE ──────────────►│                          │
+     │◄────── 200 OK ───────────│                          │
+     │                           │────── BYE ──────────────►│
+     │                           │◄───── 200 OK ────────────│
+     │                           │                          │
+
+
+3. STRUCTURE D'UN PAQUET RTP
+----------------------------
+
+  0                   1                   2                   3
+  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ |V=2|P|X|  CC   |M|     PT      |       sequence number         |
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ |                           timestamp                           |
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ |           synchronization source (SSRC) identifier            |
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ |                         payload data                          |
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+ Champs:
+ - V (2 bits)  : Version = 2
+ - P (1 bit)   : Padding
+ - X (1 bit)   : Extension
+ - CC (4 bits) : CSRC count
+ - M (1 bit)   : Marker (début de parole)
+ - PT (7 bits) : Payload Type (0=PCMU, 8=PCMA)
+ - Sequence    : Numéro de paquet (incrémental)
+ - Timestamp   : Horodatage pour synchronisation
+ - SSRC        : Identifiant de source
+ - Payload     : Données audio encodées
+
+
+4. DIAGRAMME DE CLASSES UML
+---------------------------
+
+┌─────────────────────────────────────────────────────────────────┐
+│                         CLIENT SIP                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌──────────────┐       ┌──────────────┐       ┌─────────────┐│
+│  │   GUI        │       │  SIPClient   │       │ AudioHandler││
+│  │              │       │              │       │             ││
+│  │ - root       │       │ - config     │       │ - config    ││
+│  │ - widgets    │       │ - socket     │       │ - stream    ││
+│  │ - status     │       │ - rtp        │       │ - codec     ││
+│  ├──────────────┤       ├──────────────┤       ├─────────────┤│
+│  │ + _create()  │       │ + start()    │       │ + start_    ││
+│  │ + _update()  │       │ + call()     │       │   capture() ││
+│  │ + _log()     │       │ + hangup()   │       │ + start_    ││
+│  │              │◄─────►│ + accept()   │◄─────►│   playback()││
+│  │              │       │ + register() │       │ + queue_    ││
+│  │              │       │              │       │   audio()   ││
+│  └──────────────┘       └──────────────┘       └─────────────┘│
+│                                │                              │
+│                                │ utilise                      │
+│                                ▼                              │
+│                       ┌──────────────────┐                   │
+│                       │    RTPSession    │                   │
+│                       ├──────────────────┤                   │
+│                       │ - local_port     │                   │
+│                       │ - remote_addr    │                   │
+│                       │ - ssrc           │                   │
+│                       ├──────────────────┤                   │
+│                       │ + send_frame()   │                   │
+│                       │ + recv_loop()    │                   │
+│                       └──────────────────┘                   │
+└───────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────┐
+│                        SERVEUR SIP                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│                       ┌──────────────┐                         │
+│                       │  SIPServer   │                         │
+│                       ├──────────────┤                         │
+│                       │ - host       │                         │
+│                       │ - port       │                         │
+│                       │ - socket     │                         │
+│                       ├──────────────┤                         │
+│                       │ + start()    │                         │
+│                       │ + _recv_loop │                         │
+│                       │ + _handle()  │                         │
+│                       └──────┬───────┘                         │
+│                              │                                  │
+│              ┌───────────────┼───────────────┐                 │
+│              │               │               │                 │
+│              ▼               ▼               ▼                 │
+│     ┌──────────────┐ ┌──────────────┐ ┌──────────────┐        │
+│     │  Registrar   │ │    Proxy     │ │  CallManager │        │
+│     ├──────────────┤ ├──────────────┤ ├──────────────┤        │
+│     │ - users      │ │ - registrar  │ │ - calls      │        │
+│     ├──────────────┤ ├──────────────┤ ├──────────────┤        │
+│     │ + register() │ │ + handle_    │ │ + create()   │        │
+│     │ + unregister │ │   invite()   │ │ + terminate()│        │
+│     │ + get_user() │ │ + handle_bye │ │ + get_info() │        │
+│     └──────────────┘ └──────────────┘ └──────────────┘        │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+
+
+5. MACHINE D'ÉTAT D'UN APPEL
+----------------------------
+
+                    ┌─────────────┐
+                    │   IDLE      │
+                    │ (Inactif)   │
+                    └──────┬──────┘
+                           │
+              ┌────────────┼────────────┐
+              │ INVITE     │           │ INVITE reçu
+              │ émis       │           │
+              ▼            │           ▼
+    ┌─────────────────┐    │   ┌─────────────────┐
+    │  INITIATING     │    │   │    RINGING      │
+    │ (Appel en cours)│    │   │ (Ça sonne)      │
+    └────────┬────────┘    │   └────────┬────────┘
+             │             │            │
+             │ 100 Trying  │            │ 200 OK
+             │             │            │
+             ▼             │            ▼
+    ┌─────────────────┐    │   ┌─────────────────┐
+    │    RINGING      │    │   │    ACTIVE       │
+    │   (Ça sonne)    │    │   │ (En appel)      │
+    └────────┬────────┘    │   └────────┬────────┘
+             │             │            │
+             │ BYE/CANCEL  │            │ BYE
+             │             │            │
+             └─────────────┴────────────┘
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │ TERMINATED  │
+                    │ (Terminé)   │
+                    └─────────────┘
+
+
+6. FORMAT DES MESSAGES SIP
+--------------------------
+
+REQUÊTE SIP:
+┌─────────────────────────────────────────────────────────────┐
+│ Ligne de requête: <Méthode> <URI> SIP/2.0                   │
+├─────────────────────────────────────────────────────────────┤
+│ Headers:                                                    │
+│   Via: SIP/2.0/UDP <IP>;branch=<ID>                         │
+│   From: <sip:user@domain>;tag=<ID>                          │
+│   To: <sip:user@domain>                                     │
+│   Call-ID: <unique-id>@<host>                               │
+│   CSeq: <number> <METHOD>                                   │
+│   Contact: <sip:user@IP:port>                               │
+│   Content-Type: application/sdp                             │
+│   Content-Length: <length>                                  │
+├─────────────────────────────────────────────────────────────┤
+│ Corps (SDP pour INVITE):                                    │
+│   v=0                                                       │
+│   o=- <session-id> <version> IN IP4 <IP>                    │
+│   s=-                                                       │
+│   c=IN IP4 <IP>                                             │
+│   t=0 0                                                     │
+│   m=audio <port> RTP/AVP <payload-types>                    │
+│   a=rtpmap:<pt> <codec>/<rate>                              │
+└─────────────────────────────────────────────────────────────┘
+
+RÉPONSE SIP:
+┌─────────────────────────────────────────────────────────────┐
+│ Ligne de statut: SIP/2.0 <code> <text>                      │
+├─────────────────────────────────────────────────────────────┤
+│ Headers:                                                    │
+│   Via: (copié de la requête)                                │
+│   From: (copié de la requête)                               │
+│   To: (copié + tag si réponse finale)                       │
+│   Call-ID: (copié de la requête)                            │
+│   CSeq: (copié de la requête)                               │
+│   Content-Length: <length>                                  │
+└─────────────────────────────────────────────────────────────┘
+
+Codes de statut:
+  1xx - Information (100 Trying, 180 Ringing)
+  2xx - Succès (200 OK)
+  3xx - Redirection
+  4xx - Erreur client (404 Not Found, 480 Unavailable)
+  5xx - Erreur serveur (500 Internal Error)
+  6xx - Échec global (603 Decline)
+
+
+7. CONFIGURATION RÉSEAU
+-----------------------
+
+Ports utilisés:
+
+  Service          Port       Protocole
+  ───────────────────────────────────────
+  Serveur SIP      5060       UDP
+  Client SIP       5061       UDP (par défaut)
+  RTP Audio        10000-20000 UDP
+  RTCP             RTP+1      UDP
+
+
+Adresses et identification:
+
+  Élément          Format                Exemple
+  ────────────────────────────────────────────────────
+  URI SIP          sip:<user>@<host>     sip:1001@localhost
+  Contact          <sip:<user>@<IP>:<port>>
+  Call-ID          <uuid>@<hostname>
+  Via branch       z9hG4bK-<hex>
+  Tag              <hex-string>
+
+
+=================================================================

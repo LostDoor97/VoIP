@@ -1,0 +1,37 @@
+[
+    {
+        "time": "2026-04-02 17:44",
+        "remote": "1002",
+        "direction": "in",
+        "duration": "00:00",
+        "status": "cancelled"
+    },
+    {
+        "time": "2026-04-02 17:28",
+        "remote": "1004",
+        "direction": "out",
+        "duration": "00:06",
+        "status": "completed"
+    },
+    {
+        "time": "2026-04-02 17:25",
+        "remote": "1002",
+        "direction": "out",
+        "duration": "08:58",
+        "status": "completed"
+    },
+    {
+        "time": "2026-04-02 16:44",
+        "remote": "1002",
+        "direction": "in",
+        "duration": "00:00",
+        "status": "missed"
+    },
+    {
+        "time": "2026-04-02 16:05",
+        "remote": "1002",
+        "direction": "out",
+        "duration": "00:21",
+        "status": "completed"
+    }
+]

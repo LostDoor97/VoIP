@@ -1,0 +1,26 @@
+# Dépendances pour le projet VoIP
+
+# Serveur et client SIP
+pysocks>=1.7.1
+
+# Interface graphique
+tkinter-tooltip>=0.2.0
+
+# Traitement audio
+numpy>=1.21.0
+sounddevice>=0.4.4
+soundfile>=0.10.3
+
+# Codec Opus (optionnel)
+pyogg>=0.6.0
+
+# Utilitaires
+asyncio>=3.4.3
+websockets>=10.0
+
+# Tests
+pytest>=7.0.0
+pytest-asyncio>=0.18.0
+
+# Documentation (optionnel)
+markdown>=3.3.0

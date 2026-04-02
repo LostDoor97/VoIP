@@ -1,0 +1,23 @@
+[
+    {
+        "time": "2026-04-02 17:44",
+        "remote": "1001",
+        "direction": "out",
+        "duration": "00:09",
+        "status": "completed"
+    },
+    {
+        "time": "2026-04-02 17:40",
+        "remote": "1001",
+        "direction": "out",
+        "duration": "00:15",
+        "status": "completed"
+    },
+    {
+        "time": "2026-04-02 16:20",
+        "remote": "1001",
+        "direction": "out",
+        "duration": "00:21",
+        "status": "completed"
+    }
+]

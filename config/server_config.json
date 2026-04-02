@@ -1,0 +1,34 @@
+{
+    "server": {
+        "host": "0.0.0.0",
+        "sip_port": 5060,
+        "rtp_port_start": 10000,
+        "rtp_port_end": 20000,
+        "max_calls": 100
+    },
+    "users": {
+        "1001": {
+            "username": "ahoulismi",
+            "password": "pass1001",
+            "display_name": "AHOULIMI BIDENIMM"
+        },
+        "1002": {
+            "username": "sidiki",
+            "password": "pass1002",
+            "display_name": "SIDIKI ABOUBAKAR"
+        },
+        "1003": {
+            "username": "elkarfi",
+            "password": "pass1003",
+            "display_name": "EL KARFI SOUFIA"
+        },
+        "1004": {
+            "username": "lazaar",
+            "password": "pass1004",
+            "display_name": "LAZAAR EL MEHDI"
+        }
+    },
+    "codecs": ["PCMU", "PCMA", "opus"],
+    "session_timeout": 3600,
+    "log_level": "INFO"
+}

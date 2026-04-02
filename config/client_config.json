@@ -1,0 +1,35 @@
+{
+    "client": {
+        "user_id": "1001",
+        "username": "ahoulismi",
+        "password": "pass1001",
+        "display_name": "AHOULIMI BIDENIMM",
+        "server_host": "localhost",
+        "server_port": 5060,
+        "local_rtp_port": 0
+    },
+    "audio": {
+        "sample_rate": 8000,
+        "channels": 1,
+        "frame_size": 160,
+        "codec": "PCMU",
+        "echo_cancellation": true,
+        "noise_suppression": true
+    },
+    "ui": {
+        "theme": "default",
+        "language": "fr",
+        "show_notifications": true
+    },
+    "network": {
+        "stun_enabled": false,
+        "stun_server": "stun.l.google.com",
+        "stun_port": 19302,
+        "stun_timeout": 1.5
+    },
+    "contacts": [
+        {"id": "1002", "name": "SIDIKI ABOUBAKAR"},
+        {"id": "1003", "name": "EL KARFI SOUFIA"},
+        {"id": "1004", "name": "LAZAAR EL MEHDI"}
+    ]
+}
