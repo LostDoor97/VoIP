@@ -4,6 +4,8 @@
         "sip_port": 5060,
         "rtp_port_start": 10000,
         "rtp_port_end": 20000,
+        "media_relay_enabled": true,
+        "public_host": "",
         "max_calls": 100
     },
     "users": {

@@ -1,5 +1,12 @@
 [
     {
+        "time": "2026-04-06 17:16",
+        "remote": "1001",
+        "direction": "in",
+        "duration": "00:00",
+        "status": "cancelled"
+    },
+    {
         "time": "2026-04-02 17:44",
         "remote": "1001",
         "direction": "out",

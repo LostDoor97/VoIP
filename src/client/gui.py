@@ -10,6 +10,7 @@ import json
 import os
 import sys
 import time
+import socket
 from datetime import datetime
 from typing import Optional
 
@@ -50,6 +51,7 @@ class VoIPClientGUI:
         self.ringing_event = threading.Event()
         self.ringing_thread = None
         self.local_hangup_handled = False
+        self.registration_confirmed = False
 
         # Créer l'interface
         self._create_widgets()
@@ -677,6 +679,10 @@ class VoIPClientGUI:
 
     def _start_client(self):
         """Démarre le client SIP"""
+        self.status_var.set("Connexion au serveur SIP...")
+
+        self._auto_switch_server_host()
+
         def start():
             try:
                 self.client = SIPClient(self.config)
@@ -698,14 +704,107 @@ class VoIPClientGUI:
         thread = threading.Thread(target=start, daemon=True)
         thread.start()
 
+        # Si aucune réponse REGISTER n'arrive, éviter de rester bloqué sur "Initialisation..."
+        self.root.after(8000, self._check_registration_timeout)
+
+    def _auto_switch_server_host(self):
+        """Bascule automatiquement vers un serveur SIP joignable si l'hôte configuré ne répond pas."""
+        client_cfg = self.config.get('client', {})
+        current_host = client_cfg.get('server_host', 'localhost')
+        current_port = int(client_cfg.get('server_port', 5060))
+
+        if self._probe_sip_host(current_host, current_port, timeout=0.9):
+            return
+
+        discovered_host = self._discover_sip_server(current_port, timeout=2.2)
+        if discovered_host and discovered_host != current_host:
+            self.config['client']['server_host'] = discovered_host
+            self._log(f"Serveur SIP auto-détecté: {discovered_host}:{current_port} (ancien: {current_host})")
+            self.status_var.set(f"Serveur auto-détecté: {discovered_host}")
+        elif discovered_host:
+            self.status_var.set(f"Serveur détecté: {discovered_host}")
+        else:
+            self._log(f"Auto-détection SIP indisponible, serveur conservé: {current_host}:{current_port}")
+
+    def _probe_sip_host(self, host: str, port: int, timeout: float = 0.9) -> bool:
+        """Teste si un hôte répond à une requête SIP OPTIONS."""
+        probe = (
+            f"OPTIONS sip:{host} SIP/2.0\r\n"
+            f"Via: SIP/2.0/UDP 0.0.0.0;branch=z9hG4bK-probe\r\n"
+            f"From: <sip:probe@local>;tag=probe\r\n"
+            f"To: <sip:probe@{host}>\r\n"
+            f"Call-ID: probe-{int(time.time() * 1000)}\r\n"
+            f"CSeq: 1 OPTIONS\r\n"
+            f"Content-Length: 0\r\n\r\n"
+        ).encode('utf-8')
+
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            sock.bind(('0.0.0.0', 0))
+            sock.settimeout(timeout)
+            sock.sendto(probe, (host, port))
+            data, _ = sock.recvfrom(2048)
+            text = data.decode('utf-8', errors='ignore')
+            return text.startswith('SIP/2.0 200') or text.startswith('SIP/2.0 100')
+        except Exception:
+            return False
+        finally:
+            sock.close()
+
+    def _discover_sip_server(self, port: int, timeout: float = 2.2) -> Optional[str]:
+        """Découvre un serveur SIP sur le LAN via broadcast OPTIONS."""
+        probe = (
+            "OPTIONS sip:discover SIP/2.0\r\n"
+            "Via: SIP/2.0/UDP 0.0.0.0;branch=z9hG4bK-discover\r\n"
+            "From: <sip:discover@local>;tag=discover\r\n"
+            "To: <sip:discover@lan>\r\n"
+            f"Call-ID: discover-{int(time.time() * 1000)}\r\n"
+            "CSeq: 1 OPTIONS\r\n"
+            "Content-Length: 0\r\n\r\n"
+        ).encode('utf-8')
+
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+            sock.bind(('0.0.0.0', 0))
+            sock.settimeout(0.45)
+            sock.sendto(probe, ('255.255.255.255', port))
+
+            deadline = time.time() + timeout
+            while time.time() < deadline:
+                try:
+                    data, addr = sock.recvfrom(2048)
+                    text = data.decode('utf-8', errors='ignore')
+                    if text.startswith('SIP/2.0 200') or text.startswith('SIP/2.0 100'):
+                        return addr[0]
+                except socket.timeout:
+                    continue
+
+            return None
+        except Exception:
+            return None
+        finally:
+            sock.close()
+
+    def _check_registration_timeout(self):
+        """Signale un timeout de connexion si l'enregistrement SIP n'a pas abouti."""
+        if not self.registration_confirmed:
+            self._update_led('red')
+            self.status_var.set("Échec: timeout enregistrement SIP")
+            self._log(
+                f"Aucune réponse REGISTER de {self.config['client']['server_host']}:{self.config['client']['server_port']}"
+            )
+
     def _on_registered(self):
         """Callback: enregistré avec succès"""
+        self.registration_confirmed = True
         self.root.after(0, lambda: self._update_led('green'))
         self.root.after(0, lambda: self.status_var.set(f"Connecté - {self.config['client']['user_id']}"))
         self.root.after(0, lambda: self._log("Enregistré auprès du serveur"))
 
     def _on_register_failed(self, error):
         """Callback: échec d'enregistrement"""
+        self.registration_confirmed = True
         self.root.after(0, lambda: self._update_led('red'))
         self.root.after(0, lambda: self.status_var.set(f"Échec: {error}"))
         self.root.after(0, lambda: self._log(f"Échec enregistrement: {error}"))

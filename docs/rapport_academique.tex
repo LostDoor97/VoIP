@@ -44,16 +44,42 @@ EL KARFI SOUFIA \and LAZAAR EL MEHDI
 
 \begin{document}
 
-\maketitle
-\thispagestyle{empty}
+\begin{titlepage}
+    	\thispagestyle{empty}
 
-\begin{center}
-\large
-\textbf{Filière : Réseaux et Télécommunications}\\
-\textbf{Sujet : Implémentation d'une solution VoIP basée sur SIP/RTP}\\
-\vspace{0.5cm}
-\textbf{Encadrant :} ................................................
-\end{center}
+    \begin{flushright}
+        \includegraphics[width=3.4cm]{../inpt.png}
+    \end{flushright}
+
+    \vspace*{0.8cm}
+
+    \begin{center}
+        {\Large\textbf{Institut National des Postes et Télécommunications}}\\[0.3cm]
+        {\large\textbf{Filière : Smart ICT}}\\[1.6cm]
+
+        {\LARGE\textbf{Rapport :}}\\[0.4cm]
+        {\Large\textbf{Projet de Communication VoIP}}\\[1.1cm]
+
+        \rule{0.9\textwidth}{0.8pt}\\[0.35cm]
+        {\large\textbf{Sujet : Implémentation d'une solution VoIP basée sur SIP/RTP}}\\[0.35cm]
+        \rule{0.9\textwidth}{0.8pt}\\[1.2cm]
+    \end{center}
+
+    \noindent
+    \begin{tabular}{p{0.45\textwidth} p{0.5\textwidth}}
+        	\textbf{Encadré par :} & \textbf{Travail effectué par :} \\
+        Mr. Abdelali CHAOUB & AHOULIMI BIDENIMM \\
+         & SIDIKI ABOUBAKAR \\
+         & EL KARFI SOUFIA \\
+         & LAZAAR EL MEHDI \\
+    \end{tabular}
+
+    \vfill
+
+    \begin{center}
+        \large Avril 2026
+    \end{center}
+\end{titlepage}
 
 \newpage
 \tableofcontents
@@ -259,7 +285,7 @@ class SIPMessage:
 
         return "\r\n".join(lines).encode('utf-8')
 \end{lstlisting}
-
+\newpage
 \subsubsection{Implémentation SDP (offre/réponse et parsing)}
 
 \begin{lstlisting}[language=Python,caption={Création et parsing SDP (\texttt{src/shared/sip\_messages.py})}]
@@ -379,7 +405,7 @@ def get_stun_mapped_address(
     finally:
         udp_socket.settimeout(previous_timeout)
 \end{lstlisting}
-
+\newpage
 \subsubsection{Gestion d'état d'appel SIP (CANCEL vs BYE)}
 
 \begin{lstlisting}[language=Python,caption={Terminaison d'appel selon l'état (\texttt{src/client/sip\_client.py})}]
@@ -438,22 +464,44 @@ Client A                     Serveur SIP                     Client B
 \end{figure}
 
 \section{Capture d'écran de l'application fonctionnelle}
+Etape 1 : Lancement du serveur SIP (terminal dédié) \\
 
 \begin{figure}[H]
 \centering
-\IfFileExists{screenshots/app_functionnelle.png}{
-    \includegraphics[width=0.9\textwidth]{screenshots/app_functionnelle.png}
-}{
-    \fbox{\parbox{0.9\textwidth}{
-    \centering
-    \vspace{1cm}
-    Placeholder capture d'écran.\\
-    Ajouter le fichier : \texttt{docs/screenshots/app\_fonctionnelle.png}
-    \vspace{1cm}
-    }}
-}
-\caption{Interface graphique du client VoIP en fonctionnement.}
+\includegraphics[width=0.8\textwidth]{screenshots/sc1.png}
 \end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{screenshots/sc2.png}
+\end{figure}
+Etape 2 : Lancement des clients et enregistrement \\
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{screenshots/sc3.png}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{screenshots/sc4.png}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{screenshots/sc5.png}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{screenshots/sc6.png}
+\end{figure}
+\newpage
+Etape 3 : Établissement d'un appel et échange audio \\
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{screenshots/sc7.png}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{screenshots/sc8.png}
+\end{figure}
+\newpage
 
 \section{Tests de connectivité et résultats}
 
@@ -506,6 +554,141 @@ Création/Parsing SDP & IP/Port/Codecs cohérents & OK \\
 
 Les résultats montrent une cohérence entre la logique de signalisation SIP et la couche média RTP. Le système permet l'enregistrement des clients, l'établissement et la terminaison des appels, ainsi que l'échange audio bidirectionnel. L'ajout d'un support STUN améliore la capacité d'annonce d'endpoint public en environnement NAT, tout en conservant un mode local stable pour les tests en réseau local.
 
+\section{Connexion du système VoIP à Internet : méthodes et choix}
+
+Le passage d'un fonctionnement LAN vers Internet introduit des contraintes supplémentaires : adresses privées non routables, pare-feux d'opérateurs, NAT symétriques et variabilité de latence. Dans ce contexte, la stratégie d'interconnexion doit traiter séparément (i) la signalisation SIP et (ii) le transport média RTP.
+
+\subsection{Méthode 1 : serveur SIP public + redirection de ports}
+
+La première option consiste à héberger le serveur SIP sur une machine publique (VPS ou cloud) avec IP fixe, puis ouvrir les ports nécessaires : UDP 5060 pour SIP et une plage RTP (par exemple 10000--20000).
+
+	\textbf{Avantages :}
+\begin{itemize}[leftmargin=1.2cm]
+    \item architecture simple à comprendre ;
+    \item déploiement rapide pour des démonstrations ;
+    \item centralisation de la signalisation.
+\end{itemize}
+
+\subsection{Méthode 1 bis : relais RTP côté serveur (implémenté dans ce projet)}
+
+Une extension concrète a été mise en œuvre dans le code du projet : un mode \textbf{relais média côté serveur}. Dans ce mode, le serveur SIP alloue deux ports RTP (un par sens logique), réécrit les SDP de l'offre/réponse, puis relaye les paquets audio entre les deux clients. L'objectif est de contourner les échecs de média direct liés aux NAT restrictifs.
+
+	extbf{Paramètres de configuration associés :}
+\begin{itemize}[leftmargin=1.2cm]
+    \item \texttt{server.media\_relay\_enabled} : active le relais RTP ;
+    \item \texttt{server.public\_host} : IP publique (ou DNS) annoncée dans le SDP ;
+    \item \texttt{server.rtp\_port\_start / rtp\_port\_end} : plage de ports relais.
+\end{itemize}
+
+	extbf{Avantages :}
+\begin{itemize}[leftmargin=1.2cm]
+    \item solution immédiatement opérationnelle pour des scénarios Internet contrôlés ;
+    \item meilleure tolérance aux topologies NAT difficiles que le pair-à-pair pur ;
+    \item cohérence avec une architecture centralisée (serveur SIP déjà présent).
+\end{itemize}
+
+	extbf{Limites :}
+\begin{itemize}[leftmargin=1.2cm]
+    \item consommation de bande passante serveur (audio relayé) ;
+    \item absence de négociation ICE complète ;
+    \item ne remplace pas TURN/ICE pour une interopérabilité universelle.
+\end{itemize}
+
+	\textbf{Limites :}
+\begin{itemize}[leftmargin=1.2cm]
+    \item le média peut échouer si les deux clients sont derrière des NAT restrictifs ;
+    \item la sécurité reste faible sans TLS/SRTP ;
+    \item exposition directe des ports sur Internet.
+\end{itemize}
+
+\subsection{Méthode 2 : STUN pour découverte d'endpoint public}
+
+STUN (Session Traversal Utilities for NAT) permet au client de découvrir son adresse et port publics, puis d'annoncer ces paramètres dans SDP. Cette approche est déjà partiellement intégrée dans le projet.
+
+	\textbf{Avantages :}
+\begin{itemize}[leftmargin=1.2cm]
+    \item faible coût d'intégration ;
+    \item améliore la réussite des appels pour NAT de type full-cone ou restricted-cone ;
+    \item conserve un chemin média direct (latence souvent meilleure).
+\end{itemize}
+
+	\textbf{Limites :}
+\begin{itemize}[leftmargin=1.2cm]
+    \item insuffisant face aux NAT symétriques/CGNAT ;
+    \item pas de garantie de connectivité universelle ;
+    \item dépendance à des serveurs STUN externes.
+\end{itemize}
+
+\subsection{Méthode 3 : ICE + TURN (approche robuste recommandée)}
+
+ICE (Interactive Connectivity Establishment) orchestre plusieurs candidats réseau (hôte local, réflexif STUN, relayé TURN) et choisit automatiquement le meilleur chemin. TURN relaie le média lorsque le pair-à-pair est impossible.
+
+	\textbf{Avantages :}
+\begin{itemize}[leftmargin=1.2cm]
+    \item taux de réussite élevé en environnement Internet réel ;
+    \item robustesse face aux NAT complexes ;
+    \item meilleure expérience utilisateur (moins d'échecs silencieux).
+\end{itemize}
+
+	\textbf{Coûts/contraintes :}
+\begin{itemize}[leftmargin=1.2cm]
+    \item complexité d'implémentation plus importante ;
+    \item besoin d'un serveur TURN dimensionné (bande passante et coût) ;
+    \item logique de sélection/monitoring des candidats à intégrer côté client.
+\end{itemize}
+
+\subsection{Méthode 4 : VPN inter-sites}
+
+Une alternative pragmatique en contexte académique consiste à placer les deux clients dans un même réseau logique via VPN (WireGuard/OpenVPN). L'application se comporte alors comme en LAN.
+
+	\textbf{Avantages :}
+\begin{itemize}[leftmargin=1.2cm]
+    \item mise en œuvre souvent plus simple qu'ICE/TURN complet ;
+    \item bon niveau de sécurité si le VPN est bien configuré ;
+    \item évite l'exposition directe des ports SIP/RTP au public.
+\end{itemize}
+
+	\textbf{Limites :}
+\begin{itemize}[leftmargin=1.2cm]
+    \item nécessite l'installation/gestion d'une infrastructure VPN ;
+    \item moins adapté à un service grand public ;
+    \item dépendance opérationnelle au tunnel VPN.
+\end{itemize}
+
+\subsection{Choix recommandés selon le contexte}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{p{4.3cm}p{5.2cm}p{4.5cm}}
+
+    oprule
+	\textbf{Contexte} & \textbf{Choix recommandé} & \textbf{Justification} \\
+\midrule
+Prototype local/LAN & SIP serveur local + RTP direct & Simplicité, faible latence, débogage rapide \\
+\midrule
+Démo Internet contrôlée & Serveur SIP public + relais RTP + STUN & Déploiement réalisable rapidement sur 2 PC distants \\
+\midrule
+Production multi-opérateurs & SIP public + ICE + TURN + TLS/SRTP & Meilleure robustesse et sécurité \\
+\midrule
+Usage académique distant & VPN + serveur SIP interne & Déploiement stable sans exposition publique forte \\
+\bottomrule
+\end{tabular}
+\caption{Comparaison des stratégies de connexion Internet pour la solution VoIP.}
+\end{table}
+
+\subsection{Plan d'évolution proposé pour ce projet}
+
+Pour rendre l'application durablement opérationnelle entre deux PC distants sur Internet, la trajectoire la plus pertinente devient :
+\begin{enumerate}[leftmargin=1.2cm]
+    \item conserver le mode relais RTP serveur comme base fonctionnelle initiale ;
+    \item déployer le serveur SIP sur un hôte public avec IP fixe (ou DNS) ;
+    \item sécuriser la signalisation (SIP over TLS) et le média (SRTP) ;
+    \item intégrer un mécanisme ICE/TURN pour améliorer l'interopérabilité globale ;
+    \item instrumenter des métriques de qualité (latence, gigue, pertes) pour pilotage adaptatif.
+\end{enumerate}
+
+Cette progression conserve la base actuelle du projet tout en améliorant progressivement l'interopérabilité Internet, la sécurité et la fiabilité des appels.
+
 \section{Conclusion}
 
 Ce projet démontre la réalisation complète d'une chaîne VoIP académique basée sur des standards ouverts. L'architecture mise en place confirme la séparation claire entre signalisation (SIP/SDP) et média (RTP), ainsi que la pertinence d'un serveur SIP léger pour l'orchestration des appels.
@@ -518,7 +701,7 @@ Sur le plan pédagogique, les objectifs sont atteints : compréhension des proto
     \item extension vers des conférences multi-participants.
 \end{itemize}
 
-\section*{Références}
+
 \begin{thebibliography}{9}
 \bibitem{rfc3261}
 J. Rosenberg et al., \textit{SIP: Session Initiation Protocol}, RFC 3261, IETF, 2002.

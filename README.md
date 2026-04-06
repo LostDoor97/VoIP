@@ -19,10 +19,11 @@ Ce projet implémente une application complète de Voice over IP (VoIP) utilisan
 ┌─────────────┐         ┌─────────────┐         ┌─────────────┐
 │  Client A   │◄───────►│  Serveur    │◄───────►│  Client B   │
 │  (SIP UA)   │  SIP    │  SIP/Proxy  │  SIP    │  (SIP UA)   │
-└──────┬──────┘         └─────────────┘         └──────┬──────┘
-       │                                               │
-       └─────────────────── RTP ───────────────────────┘
-                      (Flux Audio)
+└──────┬──────┘         └──────┬──────┘         └──────┬──────┘
+       │                       │                       │
+       └────────────── RTP direct (LAN) ──────────────┘
+                               ou
+                 RTP relayé via serveur (Internet)
 ```
 
 ### Composants
@@ -58,9 +59,12 @@ Modifier les fichiers de configuration dans `config/`:
 - `server_config.json` - Configuration du serveur SIP
 - `client_config.json` - Configuration du client
 
-### Option NAT/Internet (STUN)
+### Option NAT/Internet (STUN + Relais RTP serveur)
 
-Le client supporte maintenant STUN pour annoncer l'IP/port public RTP dans le SDP.
+Le client supporte STUN pour annoncer l'IP/port public RTP dans le SDP.
+Le serveur supporte aussi un mode \"relais média\" (RTP relay) pour les appels Internet difficiles.
+
+#### Configuration client (STUN)
 
 Dans `client_config.json` (ou `client2_config.json`), activer:
 
@@ -73,7 +77,22 @@ Dans `client_config.json` (ou `client2_config.json`), activer:
 }
 ```
 
-> Note: STUN aide pour certains NAT, mais les NAT symétriques nécessitent souvent TURN/ICE complet.
+#### Configuration serveur (relai RTP)
+
+Dans `server_config.json`:
+
+```json
+"server": {
+       "host": "0.0.0.0",
+       "sip_port": 5060,
+       "rtp_port_start": 10000,
+       "rtp_port_end": 20000,
+       "media_relay_enabled": true,
+       "public_host": "IP_PUBLIQUE_OU_DNS_DU_SERVEUR"
+}
+```
+
+> Note: STUN + relais RTP améliore fortement les appels Internet, mais ICE/TURN reste la solution la plus robuste multi-opérateurs.
 
 ## Démarrage
 
@@ -87,6 +106,49 @@ python src/server/sip_server.py
 
 ```bash
 python src/client/gui.py
+```
+
+## Déploiement Internet (2 PC Windows)
+
+### PC1 (serveur Windows)
+
+1. Configurer `config/server_config.json` avec:
+       - `public_host` = IP publique ou DNS du PC1
+       - `media_relay_enabled` = `true`
+2. Ouvrir le firewall Windows:
+
+```powershell
+New-NetFirewallRule -DisplayName "VoIP SIP UDP 5060" -Direction Inbound -Action Allow -Protocol UDP -LocalPort 5060 -Profile Any
+New-NetFirewallRule -DisplayName "VoIP RTP UDP 10000-20000" -Direction Inbound -Action Allow -Protocol UDP -LocalPort 10000-20000 -Profile Any
+```
+
+3. Configurer la box/routeur (port forwarding):
+       - UDP `5060` vers IP locale de PC1
+       - UDP `10000-20000` vers IP locale de PC1
+
+4. Lancer le serveur:
+
+```powershell
+Set-Location "C:\chemin\projet-chaoub"
+.venv\Scripts\python.exe src\server\sip_server.py
+```
+
+### PC2 (client Windows distant)
+
+1. Dans `config/client_config.json` (et/ou `client2_config.json`):
+       - `server_host` = IP publique ou DNS de PC1
+       - `server_port` = `5060`
+2. Lancer un test de connectivité:
+
+```powershell
+Set-Location "C:\chemin\projet-chaoub"
+.venv\Scripts\python.exe tests\test_connectivity.py --host IP_PUBLIQUE_OU_DNS_DU_SERVEUR --port 5060
+```
+
+3. Lancer le client:
+
+```powershell
+.venv\Scripts\python.exe src\client\gui.py
 ```
 
 ## Utilisation

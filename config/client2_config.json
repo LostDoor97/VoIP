@@ -4,7 +4,7 @@
         "username": "sidiki",
         "password": "pass1002",
         "display_name": "SIDIKI ABOUBAKAR",
-        "server_host": "localhost",
+        "server_host": "172.20.95.200",
         "server_port": 5060,
         "local_rtp_port": 0
     },

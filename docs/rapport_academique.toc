@@ -13,16 +13,24 @@
 \contentsline {subsection}{\numberline {3.6}Rôle de SDP}{7}{subsection.3.6}%
 \contentsline {subsection}{\numberline {3.7}Extraits de code d'implémentation des protocoles}{8}{subsection.3.7}%
 \contentsline {subsubsection}{\numberline {3.7.1}Implémentation SIP (construction et sérialisation des messages)}{8}{subsubsection.3.7.1}%
-\contentsline {subsubsection}{\numberline {3.7.2}Implémentation SDP (offre/réponse et parsing)}{8}{subsubsection.3.7.2}%
+\contentsline {subsubsection}{\numberline {3.7.2}Implémentation SDP (offre/réponse et parsing)}{9}{subsubsection.3.7.2}%
 \contentsline {subsubsection}{\numberline {3.7.3}Implémentation RTP (encapsulation et émission des paquets)}{10}{subsubsection.3.7.3}%
 \contentsline {subsubsection}{\numberline {3.7.4}Implémentation STUN (découverte d'endpoint public UDP)}{11}{subsubsection.3.7.4}%
-\contentsline {subsubsection}{\numberline {3.7.5}Gestion d'état d'appel SIP (CANCEL vs BYE)}{11}{subsubsection.3.7.5}%
+\contentsline {subsubsection}{\numberline {3.7.5}Gestion d'état d'appel SIP (CANCEL vs BYE)}{12}{subsubsection.3.7.5}%
 \contentsline {section}{\numberline {4}Diagrammes d'architecture}{12}{section.4}%
 \contentsline {subsection}{\numberline {4.1}Architecture client-serveur}{12}{subsection.4.1}%
 \contentsline {subsection}{\numberline {4.2}Flux d'un appel et médias RTP}{13}{subsection.4.2}%
 \contentsline {section}{\numberline {5}Capture d'écran de l'application fonctionnelle}{13}{section.5}%
-\contentsline {section}{\numberline {6}Tests de connectivité et résultats}{13}{section.6}%
-\contentsline {subsection}{\numberline {6.1}Méthodologie de test}{13}{subsection.6.1}%
-\contentsline {subsection}{\numberline {6.2}Résultats obtenus}{14}{subsection.6.2}%
-\contentsline {subsection}{\numberline {6.3}Analyse}{14}{subsection.6.3}%
-\contentsline {section}{\numberline {7}Conclusion}{14}{section.7}%
+\contentsline {section}{\numberline {6}Tests de connectivité et résultats}{17}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Méthodologie de test}{17}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Résultats obtenus}{17}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Analyse}{17}{subsection.6.3}%
+\contentsline {section}{\numberline {7}Connexion du système VoIP à Internet : méthodes et choix}{18}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Méthode 1 : serveur SIP public + redirection de ports}{18}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Méthode 1 bis : relais RTP côté serveur (implémenté dans ce projet)}{18}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Méthode 2 : STUN pour découverte d'endpoint public}{19}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}Méthode 3 : ICE + TURN (approche robuste recommandée)}{19}{subsection.7.4}%
+\contentsline {subsection}{\numberline {7.5}Méthode 4 : VPN inter-sites}{19}{subsection.7.5}%
+\contentsline {subsection}{\numberline {7.6}Choix recommandés selon le contexte}{20}{subsection.7.6}%
+\contentsline {subsection}{\numberline {7.7}Plan d'évolution proposé pour ce projet}{20}{subsection.7.7}%
+\contentsline {section}{\numberline {8}Conclusion}{21}{section.8}%

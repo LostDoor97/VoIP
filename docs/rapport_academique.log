@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.12.29)  2 APR 2026 18:02
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.12.29)  6 APR 2026 17:48
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -512,33 +512,43 @@ Package hyperref Info: Link coloring ON on input line 45.
 \@outlinefile=\write3
 \openout3 = `rapport_academique.out'.
 
+<../inpt.png, id=143, 364.36125pt x 169.38281pt>
+File: ../inpt.png Graphic file (type png)
+<use ../inpt.png>
+Package pdftex.def Info: ../inpt.png  used on input line 51.
+(pdftex.def)             Requested size: 96.73918pt x 44.97151pt.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <14.4> on input line 48.
+(Font)              <12> on input line 69.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 48.
- [1
+(Font)              <8> on input line 69.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 69.
 
-{C:/Users/AdminFix/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}] (rapport_
-academique.toc
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 4.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 4.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 4.
-)
+Overfull \hbox (1.2364pt too wide) in paragraph at lines 68--76
+[] 
+ []
+
+[1
+
+{C:/Users/AdminFix/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map} <../inpt.p
+ng>] (rapport_academique.toc)
 \tf@toc=\write4
 \openout4 = `rapport_academique.toc'.
 
 
-[2] [3] [4]
+pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has 
+been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.86 \newpage
+              [1] [2] [3] [4]
 LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 1
-13.
+39.
 
 (C:\Users\AdminFix\AppData\Local\Programs\MiKTeX\tex/latex/base\t1cmtt.fd
 File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 )
-Overfull \hbox (21.62555pt too wide) in paragraph at lines 113--114
+Overfull \hbox (21.62555pt too wide) in paragraph at lines 139--140
 []\T1/cmr/bx/n/12 API Ja-vaS-cript \T1/cmr/m/n/12 nor-ma-li-sées (\T1/cmtt/m/n/
 12 getUserMedia\T1/cmr/m/n/12 , \T1/cmtt/m/n/12 RTCPeerConnection\T1/cmr/m/n/12
  , \T1/cmtt/m/n/12 RTCDataChannel\T1/cmr/m/n/12 ). 
@@ -550,38 +560,116 @@ y
 File: lstlang1.sty 2023/02/27 1.9 listings language file
 )
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 230.
+nput line 256.
 LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <10.95> not available
-(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 232.
- [8] [9] [10] [11] [12] [13]
-Underfull \hbox (badness 10000) in paragraph at lines 496--496
+(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 258.
+ [8] [9] [10] [11] [12]
+Underfull \hbox (badness 10000) in paragraph at lines 467--468
+
+ []
+
+<screenshots/sc1.png, id=413, 1926.44719pt x 1142.76938pt>
+File: screenshots/sc1.png Graphic file (type png)
+<use screenshots/sc1.png>
+Package pdftex.def Info: screenshots/sc1.png  used on input line 471.
+(pdftex.def)             Requested size: 364.19667pt x 216.02989pt.
+<screenshots/sc2.png, id=414, 1926.44719pt x 1203.7472pt>
+File: screenshots/sc2.png Graphic file (type png)
+<use screenshots/sc2.png>
+Package pdftex.def Info: screenshots/sc2.png  used on input line 475.
+(pdftex.def)             Requested size: 364.19667pt x 227.55717pt.
+[13 <./screenshots/sc1.png>]
+<screenshots/sc3.png, id=437, 1926.44719pt x 1145.02782pt>
+File: screenshots/sc3.png Graphic file (type png)
+<use screenshots/sc3.png>
+Package pdftex.def Info: screenshots/sc3.png  used on input line 480.
+(pdftex.def)             Requested size: 364.19667pt x 216.45683pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 477--481
+
+ []
+
+<screenshots/sc4.png, id=438, 1926.44719pt x 934.99312pt>
+File: screenshots/sc4.png Graphic file (type png)
+<use screenshots/sc4.png>
+Package pdftex.def Info: screenshots/sc4.png  used on input line 484.
+(pdftex.def)             Requested size: 364.19667pt x 176.75172pt.
+<screenshots/sc5.png, id=439, 1926.44719pt x 1106.63437pt>
+File: screenshots/sc5.png Graphic file (type png)
+<use screenshots/sc5.png>
+Package pdftex.def Info: screenshots/sc5.png  used on input line 488.
+(pdftex.def)             Requested size: 364.19667pt x 209.1989pt.
+<screenshots/sc6.png, id=440, 1926.44719pt x 1097.60063pt>
+File: screenshots/sc6.png Graphic file (type png)
+<use screenshots/sc6.png>
+Package pdftex.def Info: screenshots/sc6.png  used on input line 492.
+(pdftex.def)             Requested size: 364.19667pt x 207.49115pt.
+[14 <./screenshots/sc2.png> <./screenshots/sc3.png> <./screenshots/sc4.png>]
+[15 <./screenshots/sc5.png> <./screenshots/sc6.png>]
+<screenshots/sc7.png, id=454, 1924.18875pt x 1084.80281pt>
+File: screenshots/sc7.png Graphic file (type png)
+<use screenshots/sc7.png>
+Package pdftex.def Info: screenshots/sc7.png  used on input line 498.
+(pdftex.def)             Requested size: 364.19667pt x 205.32014pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 495--499
+
+ []
+
+<screenshots/sc8.png, id=455, 1926.44719pt x 1105.88156pt>
+File: screenshots/sc8.png Graphic file (type png)
+<use screenshots/sc8.png>
+Package pdftex.def Info: screenshots/sc8.png  used on input line 502.
+(pdftex.def)             Requested size: 364.19667pt x 209.0566pt.
+[16 <./screenshots/sc7.png> <./screenshots/sc8.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 544--544
 []|\T1/cmr/m/n/12 Enregistrement ac-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 497--497
+Underfull \hbox (badness 10000) in paragraph at lines 545--545
 []|\T1/cmr/m/n/12 Réponse va-lide
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 497--497
+Underfull \hbox (badness 10000) in paragraph at lines 545--545
 \T1/cmr/m/n/12 (Trying/-Rin-
  []
 
-[14] [15] (rapport_academique.aux)
+[17] [18] [19]
+Underfull \hbox (badness 10000) in paragraph at lines 669--670
+[]|\T1/cmr/m/n/12 Déploiement réa-li-sable
+ []
+
+
+Underfull \hbox (badness 4217) in paragraph at lines 669--670
+\T1/cmr/m/n/12 ra-pi-de-ment sur 2 PC
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 671--671
+[]|\T1/cmr/m/n/12 Production multi-
+ []
+
+
+Underfull \hbox (badness 2035) in paragraph at lines 671--672
+[]|\T1/cmr/m/n/12 Meilleure ro-bus-tesse et
+ []
+
+[20] [21] (rapport_academique.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-04>
  ***********
 Package rerunfilecheck Info: File `rapport_academique.out' has not changed.
-(rerunfilecheck)             Checksum: CEC2052F9AE76FB49C0D2A2D2BD1AE6A;6355.
+(rerunfilecheck)             Checksum: 0FEC590330A3973CB0A3626C07FFBCFF;8939.
  ) 
 Here is how much of TeX's memory you used:
- 14294 strings out of 474486
- 226216 string characters out of 5742338
- 2432542 words of memory out of 5000000
- 36169 multiletter control sequences out of 15000+600000
- 570967 words of font info for 62 fonts, out of 8000000 for 9000
+ 14380 strings out of 474486
+ 228052 string characters out of 5742338
+ 2419542 words of memory out of 5000000
+ 36237 multiletter control sequences out of 15000+600000
+ 570054 words of font info for 59 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  75i,10n,79p,640b,2053s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\AdminFix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\e
@@ -590,16 +678,16 @@ ccc1200.pk> <C:\Users\AdminFix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec
 nappen/ec/dpi600\ectt1095.pk> <C:\Users\AdminFix\AppData\Local\MiKTeX\fonts/pk/
 ljfour/jknappen/ec/dpi600\ecti1200.pk> <C:\Users\AdminFix\AppData\Local\MiKTeX\
 fonts/pk/ljfour/jknappen/ec/dpi600\ectt1200.pk> <C:\Users\AdminFix\AppData\Loca
-l\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1200.pk> <C:\Users\AdminFix\App
-Data\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1200.pk> <C:\Users\Adm
-inFix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1728.pk> <C:\
-Users\AdminFix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1440
+l\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1440.pk> <C:\Users\AdminFix\App
+Data\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1200.pk> <C:\Users\Adm
+inFix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1200.pk> <C:\
+Users\AdminFix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx2074
 .pk> <C:\Users\AdminFix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600
-\ecrm1440.pk> <C:\Users\AdminFix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/
-ec/dpi600\ecbx2074.pk>
-Output written on rapport_academique.pdf (15 pages, 254693 bytes).
+\ecbx1440.pk> <C:\Users\AdminFix\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/
+ec/dpi600\ecbx1728.pk>
+Output written on rapport_academique.pdf (22 pages, 1578973 bytes).
 PDF statistics:
- 985 PDF objects out of 1000 (max. 8388607)
- 238 named destinations out of 1000 (max. 500000)
- 217 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1068 PDF objects out of 1200 (max. 8388607)
+ 256 named destinations out of 1000 (max. 500000)
+ 326 words of extra memory for PDF output out of 10000 (max. 10000000)
 

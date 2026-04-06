@@ -59,6 +59,77 @@ class ActiveCall:
     callee_sdp: dict = field(default_factory=dict)
     start_time: datetime = field(default_factory=datetime.now)
     status: str = "initiating"
+    relay_session: Optional[object] = None
+    caller_relay_port: int = 0
+    callee_relay_port: int = 0
+
+
+class RTPRelaySession:
+    """Session de relais RTP entre deux participants."""
+
+    def __init__(self, caller_port: int, callee_port: int):
+        self.caller_port = caller_port
+        self.callee_port = callee_port
+
+        self.caller_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.callee_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+        self.caller_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.callee_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+        self.caller_socket.bind(('0.0.0.0', caller_port))
+        self.callee_socket.bind(('0.0.0.0', callee_port))
+
+        self.caller_socket.settimeout(0.2)
+        self.callee_socket.settimeout(0.2)
+
+        self.caller_addr: Optional[tuple] = None
+        self.callee_addr: Optional[tuple] = None
+        self.running = False
+        self.thread_caller: Optional[threading.Thread] = None
+        self.thread_callee: Optional[threading.Thread] = None
+
+    def start(self):
+        self.running = True
+        self.thread_caller = threading.Thread(target=self._loop_from_caller, daemon=True)
+        self.thread_callee = threading.Thread(target=self._loop_from_callee, daemon=True)
+        self.thread_caller.start()
+        self.thread_callee.start()
+
+    def _loop_from_caller(self):
+        while self.running:
+            try:
+                data, addr = self.caller_socket.recvfrom(4096)
+                self.caller_addr = addr
+                if self.callee_addr:
+                    self.callee_socket.sendto(data, self.callee_addr)
+            except socket.timeout:
+                continue
+            except OSError:
+                break
+
+    def _loop_from_callee(self):
+        while self.running:
+            try:
+                data, addr = self.callee_socket.recvfrom(4096)
+                self.callee_addr = addr
+                if self.caller_addr:
+                    self.caller_socket.sendto(data, self.caller_addr)
+            except socket.timeout:
+                continue
+            except OSError:
+                break
+
+    def stop(self):
+        self.running = False
+        try:
+            self.caller_socket.close()
+        except OSError:
+            pass
+        try:
+            self.callee_socket.close()
+        except OSError:
+            pass
 
 
 class SIPRegistrar:
@@ -232,6 +303,8 @@ class SIPServer:
         # Charger la configuration
         self.config = self._load_config()
         self._configure_from_config()
+        self.relay_lock = threading.Lock()
+        self.relay_port_cursor = self.rtp_port_start
 
     def _load_config(self) -> dict:
         """Charge la configuration depuis le fichier"""
@@ -249,6 +322,51 @@ class SIPServer:
         server_config = self.config.get('server', {})
         self.host = server_config.get('host', '0.0.0.0')
         self.port = server_config.get('sip_port', 5060)
+        self.rtp_port_start = int(server_config.get('rtp_port_start', 10000))
+        self.rtp_port_end = int(server_config.get('rtp_port_end', 20000))
+        self.media_relay_enabled = bool(server_config.get('media_relay_enabled', False))
+        configured_public_host = server_config.get('public_host', '').strip()
+        if configured_public_host:
+            self.public_host = configured_public_host
+        else:
+            self.public_host = self._detect_advertised_host()
+
+    def _detect_advertised_host(self) -> str:
+        if self.host not in ('0.0.0.0', '::'):
+            return self.host
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            sock.connect(('8.8.8.8', 53))
+            return sock.getsockname()[0]
+        except OSError:
+            return '127.0.0.1'
+        finally:
+            sock.close()
+
+    def _allocate_relay_ports(self) -> Tuple[int, int]:
+        with self.relay_lock:
+            if self.relay_port_cursor < self.rtp_port_start or self.relay_port_cursor > self.rtp_port_end - 1:
+                self.relay_port_cursor = self.rtp_port_start
+            caller_port = self.relay_port_cursor
+            callee_port = caller_port + 1
+            self.relay_port_cursor += 2
+            if self.relay_port_cursor > self.rtp_port_end - 1:
+                self.relay_port_cursor = self.rtp_port_start
+            return caller_port, callee_port
+
+    def _build_relay_sdp(self, source_sdp: str, relay_port: int) -> str:
+        parsed = parse_sdp(source_sdp) if source_sdp else {}
+        codecs = parsed.get('codecs') or ['PCMU', 'PCMA']
+        return create_sdp(offer=True, ip=self.public_host, port=relay_port, codecs=codecs)
+
+    def _teardown_call(self, call_id: str):
+        call = self.proxy.active_calls.get(call_id)
+        if not call:
+            return
+        relay = call.relay_session
+        if relay:
+            relay.stop()
+        del self.proxy.active_calls[call_id]
 
     def start(self):
         """Démarre le serveur SIP"""
@@ -262,6 +380,10 @@ class SIPServer:
         print(f"\n{'='*50}")
         print(f"  SERVEUR SIP VoIP")
         print(f"  Écoute sur: {self.host}:{self.port}")
+        print(f"  Relais média: {'activé' if self.media_relay_enabled else 'désactivé'}")
+        if self.media_relay_enabled:
+            print(f"  Hôte média annoncé: {self.public_host}")
+            print(f"  Ports RTP relais: {self.rtp_port_start}-{self.rtp_port_end}")
         print(f"  Utilisateurs configurés: {len(self.config.get('users', {}))}")
         print(f"{'='*50}\n")
 
@@ -384,20 +506,33 @@ class SIPServer:
         forward_request = SIPMessage(method='INVITE', uri=message.uri)
         forward_request.headers = message.headers.copy()
         forward_request.headers['Via'] = f"SIP/2.0/UDP {self.host}:{self.port};branch={generate_call_id()}"
-        forward_request.body = message.body
+
+        call_id = message.headers.get('Call-ID', '')
+        active_call = ActiveCall(
+            call_id=call_id,
+            caller=addr,
+            callee=callee_id,
+            callee_contact=callee_addr,
+            caller_sdp=parse_sdp(message.body) if message.body else {},
+            status="ringing"
+        )
+
+        if self.media_relay_enabled and message.body:
+            caller_port, callee_port = self._allocate_relay_ports()
+            relay_session = RTPRelaySession(caller_port=caller_port, callee_port=callee_port)
+            relay_session.start()
+            active_call.relay_session = relay_session
+            active_call.caller_relay_port = caller_port
+            active_call.callee_relay_port = callee_port
+            forward_request.body = self._build_relay_sdp(message.body, callee_port)
+        else:
+            forward_request.body = message.body
 
         self.socket.sendto(forward_request.to_bytes(), callee_addr)
         logger.info(f"INVITE forwardé à {callee_id} ({callee_addr})")
 
         # Stocker l'appel en cours
-        call_id = message.headers.get('Call-ID', '')
-        self.proxy.active_calls[call_id] = ActiveCall(
-            call_id=call_id,
-            caller=addr,
-            callee=callee_id,
-            callee_contact=callee_addr,
-            status="ringing"
-        )
+        self.proxy.active_calls[call_id] = active_call
 
     def _handle_ack(self, message: SIPMessage, addr: tuple):
         """Gère un ACK"""
@@ -433,9 +568,7 @@ class SIPServer:
             target_addr = call.caller if addr == call.callee_contact else call.callee_contact
             self.socket.sendto(forward_bye.to_bytes(), target_addr)
 
-        # Supprimer l'appel
-        if call_id in self.proxy.active_calls:
-            del self.proxy.active_calls[call_id]
+        self._teardown_call(call_id)
 
     def _handle_cancel(self, message: SIPMessage, addr: tuple):
         """Gère une requête CANCEL"""
@@ -446,7 +579,7 @@ class SIPServer:
             call = self.proxy.active_calls[call_id]
             if call.status == "ringing":
                 call.status = "cancelled"
-                del self.proxy.active_calls[call_id]
+                self._teardown_call(call_id)
 
         # Envoyer 200 OK
         response = SIPResponseBuilder(message, 200).build()
@@ -463,11 +596,20 @@ class SIPServer:
         call_id = message.headers.get('Call-ID', '')
         if call_id in self.proxy.active_calls:
             call = self.proxy.active_calls[call_id]
+            cseq_method = message.headers.get('CSeq', '').split()[-1] if message.headers.get('CSeq') else ''
+            status_code = int(message.headers.get('Status', '200').split()[0]) if message.headers.get('Status') else 200
+
+            if call.relay_session and cseq_method == 'INVITE' and message.body and addr == call.callee_contact:
+                message.body = self._build_relay_sdp(message.body, call.caller_relay_port)
+
             # Déterminer la destination
             if addr == call.callee_contact:
                 self.socket.sendto(message.to_bytes(), call.caller)
             elif addr == call.caller and call.callee_contact:
                 self.socket.sendto(message.to_bytes(), call.callee_contact)
+
+            if cseq_method == 'INVITE' and status_code >= 300:
+                self._teardown_call(call_id)
 
     def _cleanup_loop(self):
         """Nettoie périodiquement les utilisateurs expirés"""
